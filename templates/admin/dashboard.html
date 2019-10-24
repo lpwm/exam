@@ -1,0 +1,141 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">状态总览</h1>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+
+    <!-- 考生总人数 -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-primary mb-1">考生总人数</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{dash['total_people']}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="icon-group icon-3x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 今日进行测验人数 -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-success mb-1">今日进行测验人数</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{dash['today_people']}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="icon-book icon-3x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近测试 -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-warning mb-1">最近测试</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{dash['recent_people']['username']}}<span
+                                class="ml-2" style="font-size:0.9rem">{{dash['recent_people']['test_time']}}</span>
+                        </div>
+
+                    </div>
+                    <div class="col-auto">
+                        <i class="icon-user icon-3x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成绩最佳 -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="font-weight-bold text-danger mb-1">成绩最佳</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{dash['best_people']['username']}}
+                            {{dash['best_people']['score']}}分</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="icon-certificate icon-3x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Content Row -->
+
+<div class="row">
+
+    <!-- Area Chart -->
+    <div class="col-xl-12 col-lg-12">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">最近成绩一览图</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div id="summary_chart" style="width:100%;height:400px;">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="/static/vendor/jquery/jquery.min.js"></script>
+<script src="/static/js/echarts.min.js"></script>
+<script>
+    //获取Flask传来的dict数据给js变量用
+    var chart_data = {{ chart_data | tojson }};
+    // 绘制图表
+    var myChart = echarts.init(document.getElementById('summary_chart'));
+    var option = {
+        title: {
+            text: '考生成绩'
+        },
+        tooltip: {},
+        legend: {
+            data: ['成绩']
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            name: '成绩',
+            type: 'bar',
+            data: []
+        }]
+    }
+    series_data = [];
+    xAxis_data = [];
+    $.each(chart_data, function (k, v) {
+        xAxis_data.push(v.username);
+        series_data.push(v.score);
+    });
+    option.series[0].data = series_data;
+    option.xAxis.data = xAxis_data;
+    myChart.setOption(option);
+</script>

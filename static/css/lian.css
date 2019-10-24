@@ -1,0 +1,51 @@
+.bg-gray {
+    background-color: #92b395;
+}
+
+.login-form {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.login-left-image {
+    background: url(/static/img/login_left.jpg);
+    background-position: center;
+    background-size: cover;
+}
+
+.wrong_answer {
+    color: red;
+    font-weight: bold;
+}
+
+#main {
+    background-color: #fff;
+    box-shadow: 15px 0 15px -15px #2592c565, -15px 0 15px -15px #2592c565;
+}
+
+.float-toolbar {
+    width: 150px;
+    display: grid;
+    position: fixed;
+    top: 20%;
+    right: 0;
+    z-index: 999;
+}
+
+#chart {
+    width: 766px;
+    height: 400px;
+}
+
+/* 管理员后台样式 */
+
+.sidebar-brand-text {
+    color: #fff;
+    font-family: '微软雅黑';
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.sidebar .nav-item .nav-link span {
+    font-size: 1rem;
+}
