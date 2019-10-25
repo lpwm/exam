@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文明单位模拟测试题</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css.css">
+    <style>
+        [v-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container pt-2" id="main" v-cloak>
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="d-inline">文明单位测试题库</h2>
+                <div class="float-right">
+                        <div class="btn btn-secondary mr-4" onclick="doRefresh()">刷新</div>
+                        <div class="btn btn-success" onclick="doSubmit()">提交</div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <form id="ceyan">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width:4em">编号</th>
+                                <th class="text-center" style="width:60%">题目</th>
+                                <th class="text-center">选项</th>
+                                <th class="d-none result text-center">结果</th>
+                                <th class="d-none answer text-center">答案</th>
+                            </tr>
+                        </thead>
+                        <tr v-for="q in questions">
+                            <td class="text-center align-middle">{{q.id}}</td>
+                            <td class="align-middle">{{q.title}}</td>
+                            <td class="align-middle">
+                                <div class="custom-control custom-radio"  v-for="op in q.options">
+                                    <input type="radio" class="custom-control-input" :name=q.id :id=q.id+op.substr(0,1) :value=op.substr(0,1)>
+                                    <label class="custom-control-label" :for=q.id+op.substr(0,1)>{{op}}</label>
+                                </div>
+                            </td>        
+                            <td class="d-none result"><span :id=q.id+'result'></span></td>
+                            <td class="d-none answer">{{q.answer}}</td>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/vue/2.2.2/vue.min.js"></script>
+    <script type="text/javascript">
+        var v = new Vue({
+                el: '#main',
+                data: {
+                    questions: []
+                }
+            })
+        $(document).ready(function () {            
+            initData()
+        });
+
+        function initData(){
+            $.getJSON("http://localhost:5000/", function (result, status) {
+                var questions = new Array();
+                $.each(result, function (key, val) {
+                    var options = val.options.split(' '); //拆分选项
+                    questions.push({ id: val.id, title: val.title, options: options, answer: val.answer })
+                })
+                v._data.questions = questions;
+            });
+        }
+
+        function doRefresh(){
+            $('input').removeAttr('checked');
+            initData()
+        }
+        
+        function doSubmit(){
+            count = v._data.questions.length;
+            var answers = new Array();
+            $.each(v._data.questions, function(key,val){
+                op = $('input[name="'+ val.id +'"]:checked').val();
+                answers.push({id:val.id, op:op})
+            })
+            // for(i=1;i<count+1;i++){
+            //     op = $('input[name="'+ i +'"]:checked').val();
+            //     answers.push({id:i, op:op})
+            // }
+            var jdata = JSON.stringify(answers);
+            
+            $.ajax({
+                type:'POST',
+                url:'http://localhost:5000/do',
+                dataType:'json',
+                contentType: 'application/json; charset=utf-8',
+                data:jdata,
+                success:function(data){
+                    // data内容:
+                    // {"status": "OK", "result": [{"id": 1, "correct": true}, {"id": 2, "correct": false}, {"id": 3, "correct": true}]}
+                    $.each(data.result, function(key,val){
+                        //console.log(val.id + ' : ' + val.correct);
+                        if(val.correct==true){
+                            $('#' + val.id + 'result').text('√');
+                            $('#' + val.id + 'result').addClass('right');
+                        }else{
+                            $('#' + val.id + 'result').text('×');
+                            $('#' + val.id + 'result').addClass('wrong');
+                        }
+                        
+                    })
+
+                    // 显示结果和答案
+                    $('.result').removeClass('d-none');
+                    $('.answer').removeClass('d-none');
+                }
+                });
+        }
+    </script>
+</body>
+
+</html>
