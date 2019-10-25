@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="float-toolbar">
+    <div class="btn btn-secondary" id='notifier'>剩余时间: 30 : 00</div>
+    <button class="btn btn-lg btn-success mt-1 submit" onclick="getScore()">提交</button>
+    <button class="btn btn-lg btn-info mt-1" onclick="getHistory()">历史成绩</button>
+</div>
+
+<div class="container pt-3 pb-3" id="main">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="d-inline">欢迎 <span id="username">{{username}}</span> 进行测验</h3>
+            <hr />
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <form id="ceshi">
+                <h2>填空题</h2>
+                <div class="mb-3">说明:多个填空问题请使用单个空格进行分割</div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width:70px">编号</th>
+                            <th class="text-center">题目</th>
+                            <th class="text-center" style="width:30%">回答</th>
+                        </tr>
+                    </thead>
+                    {% for q in questions.tiankong %}
+                    <tr>
+                        <td class="text-center">{{loop.index}}</td><!-- 模板内置变量,获取当前循环计数器 -->
+                        <td class="text-left">{{q.title}}</td>
+                        <td><input class="form-control" type="text" name="{{q.id}}"></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <h2>单选题</h2>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width:70px">编号</th>
+                            <th class="text-center">题目</th>
+                            <th class="text-center" style="width:30%">回答</th>
+                        </tr>
+                    </thead>
+                    {% for q in questions.danxuan %}
+                    <tr>
+                        <td class="text-center">{{loop.index}}</td><!-- 模板内置变量,获取当前循环计数器 -->
+                        <td class="text-left">{{q.title}}</td>
+                        <td>
+                            {% for o in q.options %}
+                            <input type="radio" class="custom-control-input">{{o}}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <!-- 时间到模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="display:block">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">提示</h4>
+                </div>
+                <div class="modal-body">时间到,请提交答案.</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        onclick="getScore()">提交答案</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <!-- 历史成绩模态框（Modal） -->
+    <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="display:block">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="historyModalLabel">历史成绩</h4>
+                </div>
+                <div class="modal-body">
+                    <div id='chart'>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // 倒计时
+    var LEFTTIME = 1799;
+    var timer = setInterval(function () {
+        if (LEFTTIME > 0) {
+            minutes = ~~(LEFTTIME / 60);
+            seconds = LEFTTIME % 60;
+            $('#notifier').text('剩余时间: ' + minutes + ' : ' + seconds);
+        } else {
+            $('#notifier').text('时间到!');
+            $('input').prop('readonly', true);
+            $("#myModal").modal('show');
+            clearInterval(timer);
+        }
+        LEFTTIME -= 1;
+    }, 1000);
+    // 计算成绩
+    function getScore() {
+        $('input').removeClass('wrong_answer');
+        formData = $('#ceshi').serialize();
+        score = 0;
+        $.ajax({
+            type: 'POST',
+            url: '/check',
+            data: formData,
+            dataType: 'json',
+            success: function (data) {
+                $.each(data.result, function (k, v) {
+                    // console.log(v.id + v.is_right);
+                    if (v.is_right == false) {
+                        $('input[name="' + v.id + '"').addClass('wrong_answer');
+                    } else {
+                        score += 1;
+                    }
+                    $('#notifier').text('得分: ' + score);
+                    $('#notifier').removeClass('btn-secondary');
+                    $('#notifier').addClass('btn-danger');
+                });
+                doLog(score);
+            }
+        });
+        clearInterval(timer);
+
+        $('.submit').prop('disabled', true);
+    }
+    // 记录成绩
+    function doLog(score) {
+        var username = $('#username').text();
+        postData = { username: username, score: score };
+        $.ajax({
+            type: 'POST',
+            url: '/log',
+            data: postData,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data.result);
+            }
+        });
+    }
+    // 绘制历史成绩图表
+    var myChart = echarts.init(document.getElementById('chart'));
+    var option = {
+        title: {
+            text: '历史成绩'
+        },
+        tooltip: {},
+        legend: {
+            data: ['成绩']
+        },
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [{
+            name: '成绩',
+            type: 'bar',
+            data: []
+        }]
+    }
+    function getHistory() {
+        // 填充数据
+        var username = $('#username').text();
+        $.ajax({
+            type: 'POST',
+            url: '/history',
+            data: { 'username': username },
+            dataType: 'json',
+            success: function (data) {
+                // 返回的数据格式需要处理一下
+                // {"history":[{"score":1,"test_time":"2019-10-23 10:55:43"},{"score":0,"test_time":"2019-10-23 10:55:23"},{"score":0,"test_time":"2019-10-23 09:14:40"},{"score":0,"test_time":"2019-10-23 09:14:00"},{"score":0,"test_time":"2019-10-23 09:02:15"}]}
+                series_data = [];
+                xAxis_data = [];
+                $.each(data.history, function (k, v) {
+                    series_data.push(v.score);
+                    xAxis_data.push(v.test_time);
+                })
+                option.series[0].data = series_data;
+                option.xAxis.data = xAxis_data;
+                myChart.setOption(option);
+                $("#historyModal").modal('show');
+            }
+        });
+
+    }
+
+
+</script>
+{% endblock %}

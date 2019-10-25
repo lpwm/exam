@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>文明单位内部测试平台</title>
+
+  <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+  <link href="/static/css/lian.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray">
+
+  <div class="container h-100">
+
+    <!-- Outer Row -->
+    <div class="row justify-content-center align-self-center h-100">
+
+      <div class="col-xl-10 col-lg-12 col-md-9 login-form">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+              <div class="col-lg-6 d-lg-block login-left-image"></div>
+              <div class="col-lg-6">
+                <div class="p-5">
+                  <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4">欢迎登录</h1>
+                  </div>
+                  <form class="user" id="loginForm" method="POST" action="/login">
+                    <div class="form-group">
+                      <input type="text" class="form-control form-control-user" name="username" placeholder="输入姓名"
+                        required title="提示" data-toggle="popover">
+                    </div>
+                    <div class="form-group">
+                      <input type="password" class="form-control form-control-user required" name="password"
+                        placeholder="输入密码" required>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-user btn-block" value="登 录">
+                    <button class="btn btn-primary btn-user btn-block" onclick="doReset()">重 置</button>
+                    <hr>
+                    <div class="text-center">数管中心 © 2019</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/static/vendor/jquery/jquery.min.js"></script>
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/static/js/sb-admin-2.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('[data-toggle="popover"]').popover('hide');
+    })
+    function doSubmit() {
+      $.ajax({
+        type: "POST",
+        url: "/login",
+        data: $('#loginForm').serialize(),
+        dataType: "json",
+        success: function (data) {
+          alert(data.message);
+        },
+        error: function () {
+          alert('Ajax出错');
+        }
+      })
+    }
+    function doReset() {
+      $("#loginForm").trigger("reset");
+    }
+  </script>
+</body>
+
+</html>

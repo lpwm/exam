@@ -1,0 +1,143 @@
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">考题管理</h1>
+<p class="mb-4">请在这里管理和编辑考题内容</p>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">考试题库</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-user" id="search_box"
+                                placeholder="输入题目关键字进行查询">
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-primary" onclick="query()">查询</button>
+                        <button class="btn btn-success" onclick="init()">重置</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0"
+                            role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                            <thead>
+                                <tr role="row">
+                                    <th class="text-center" tabindex="0" aria-controls="dataTable" rowspan="1"
+                                        colspan="1" style="width: 5">
+                                        编号</th>
+                                    <th class="text-center" tabindex="0" aria-controls="dataTable" rowspan="1"
+                                        colspan="1" style="width: 65%">
+                                        题目</th>
+                                    <th class="text-center" tabindex="0" aria-controls="dataTable" rowspan="1"
+                                        colspan="1" style="width: 20%;">
+                                        答案</th>
+                                    <th class="text-center" tabindex="0" aria-controls="dataTable" rowspan="1"
+                                        colspan="1" style="width: 10%;">操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="main_table">
+                                <tr role="row" v-for="t in tk">
+                                    <td class='text-center'>{[t.id]}</td>
+                                    <td><textarea class="form-control" rows=2 :value=t.title
+                                            :id=t.id+'title'></textarea></td>
+                                    <td><textarea class="form-control" rows=2 :value=t.answer
+                                            :id=t.id+'answer'></textarea></td>
+                                    <td class='text-center'><button class="btn btn-success btn-sm"
+                                            @click="update(t.id)">修改</button><button class="btn btn-danger btn-sm ml-2"
+                                            @click="remove(t.id)">删除</button></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var v = new Vue({
+        delimiters: ['{[', ']}'],
+        el: '#main_table',
+        data: {
+            tk: []
+        },
+        methods: {
+            remove: function (id) {
+                var args = { 'id': id };
+                send_data = JSON.stringify({ 'type': 'remove', 'args': args });
+                $.ajax({
+                    url: '/op',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: send_data,
+                    dataType: 'json',
+                    success: function (data) {
+                        v._data['tk'] = data.tiku;
+                    }
+                })
+            },
+            update: function (id) {
+                var title = $("#" + id + "title").val();
+                var answer = $("#" + id + "answer").val();
+                var args = { 'id': id, 'title': title, 'answer': answer };
+                send_data = JSON.stringify({ 'type': 'update', 'args': args });
+                $.ajax({
+                    url: '/op',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: send_data,
+                    dataType: 'json',
+                    success: function (data) {
+                        v._data['tk'] = data.tiku;
+                    }
+                })
+            }
+        }
+    })
+    $(document).ready(function () {
+        init();
+    })
+    function init() {
+        send_data = JSON.stringify({ 'type': 'all' });
+        $.ajax({
+            url: '/op',
+            method: 'POST',
+            data: send_data,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+                v._data['tk'] = data.tiku;  // 操作已经实例化的VUE对象中的内部变量data需要在前面加上_
+            }
+        })
+    }
+    function query() {
+        var keyword = $("#search_box").val();
+        var args = { 'keyword': keyword };
+        send_data = JSON.stringify({ 'type': 'query', 'args': args });
+        $.ajax({
+            url: '/op',
+            method: 'POST',
+            contentType: 'application/json',
+            data: send_data,
+            dataType: 'json',
+            success: function (data) {
+                v._data['tk'] = data.result;
+            }
+        })
+    }
+    function remove(id) {
+
+    }
+    function update(id) {
+
+    }
+</script>
