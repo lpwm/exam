@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container h-100">
+    <div class="container h-100">
+        <div class="row justify-content-center align-self-center h-100">
+            <div class="col-md-4 login-form h-25">
+                <a href='/home?action=simulate' style="text-decoration: none;">
+                    <div
+                        class="btn btn-success btn-block shadow-lg text-center d-flex text-white h-100 justify-content-center align-items-center">
+                        <i class="fas fa-users fa-3x mr-2"></i>
+                        <span style="font-size: 2em;">模拟考试</span>
+                    </div>
+            </div></a>
+            <div class="col-md-4 login-form h-25">
+                <a href='/home?action=single' style="text-decoration: none;">
+                    <div
+                        class="btn btn-warning btn-block shadow-lg text-center d-flex text-white h-100 justify-content-center align-items-center">
+                        <i class="fas fa-file-signature fa-3x mr-2"></i>
+                        <span style="font-size: 2em;">专项练习</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,7 +3,11 @@
 }
 
 .bg-gray {
-    background-color: #92b395;
+    background: url('/static/img/bg.png') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
 }
 
 .login-form {
@@ -21,6 +25,13 @@
     background-color: #ffc2c2;
 }
 
+.setting_box {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 999;
+}
+
 .wrong_checkbox {
     background-color: #ffc2c2;
 }
@@ -34,7 +45,7 @@
     width: 150px;
     display: grid;
     position: fixed;
-    top: 40%;
+    bottom: 1%;
     right: 0;
     z-index: 999;
 }

@@ -3,7 +3,7 @@
 Returns:
     [type] -- [description]
 """
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, session, redirect, url_for, jsonify, render_template
 from flask_cors import CORS
 from db import Db
 from Tiku import Tiku
@@ -25,6 +25,8 @@ app.config.from_object(__name__)
 # 修改jinja模板标签加入空格,解决和VUE模板语法的冲突
 app.jinja_env.variable_start_string = '{{ '
 app.jinja_env.variable_end_string = ' }}'
+# 设置session用到的密钥
+app.secret_key = b'4lgNukRBXhn-5oRPBZxpsw'
 CORS(app)
 
 
@@ -32,26 +34,64 @@ CORS(app)
 def index():
     """首页跳转至登录页面
     """
-    return render_template('login.html')
+    if 'username' in session:
+        return render_template('home.html', username=session['username'])
+    else:
+        return render_template('login.html')
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     """校验登录
     """
-    data = request.form    # dict类型,调用需要使用['key']的方式
-    uname = data['username']
-    upwd = data['password']
-    if dbo.check_user(uname, upwd) == 1:
-        # 普通用户登录成功
-        ques = dbo.random_questions()  # 获取随机题库
-        return render_template('index.html', questions=ques, username=uname)
-    elif dbo.check_user(uname, upwd) == 2:
-        # 管理员登录成功
-        dashboard_data = dbo.dashboard()
-        return render_template('/admin/admin.html', dash=dashboard_data['top_data'], chart_data=dashboard_data['chart_data'])
-    else:
+    if request.method == 'GET':
         return render_template('login.html')
+    if request.method == 'POST':
+        data = request.form    # dict类型,调用需要使用['key']的方式
+        uname = data['username']
+        upwd = data['password']
+        if dbo.check_user(uname, upwd) == 1:
+            # 普通用户登录成功
+            session['username'] = uname  # 保存session会话
+            return redirect('/')
+
+        elif dbo.check_user(uname, upwd) == 2:
+            # 管理员登录成功
+            dashboard_data = dbo.dashboard()
+            return render_template('/admin/admin.html', dash=dashboard_data['top_data'], chart_data=dashboard_data['chart_data'])
+        else:
+            return redirect(url_for('index'))
+
+
+@app.route('/logout')
+def logout():
+    """注销登录
+    """
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+
+@app.route('/home', methods=['GET'])
+def home():
+    """首页导航
+    """
+    if 'username' in session:
+        if 'action' in request.args:    # 带参数的访问
+            action = request.values['action']
+            if action == 'simulate':
+                ques = dbo.random_questions()  # 获取随机题库
+                return render_template('moni.html', questions=ques, username=session['username'])
+            if action == 'single':
+                ques = dbo.random_questions()  # 获取随机题库
+                return render_template('zhuanxiang.html', questions=ques, username=session['username'])
+
+            return render_template('home.html')
+
+        else:
+            render_template('home.html')    # 不带参数直接返回导航页面
+
+    else:
+        return redirect('/')
 
 
 @app.route('/get', methods=['GET'])
@@ -138,6 +178,17 @@ def op():
     if op_type == 'all':
         all_tk = tk.get_all()
         return jsonify({'tiku': all_tk})
+
+
+@app.route('/ztlx', methods=['POST'])
+def ztlx():
+    """专题练习
+    """
+    data = request.values
+    timu_type = data['timu_type']
+    timu_num = int(data['timu_num'])
+    result = dbo.get_questions(timu_type, timu_num)
+    return jsonify({'timu': result})
 
 
 @app.route('/test', methods=['GET', 'POST'])

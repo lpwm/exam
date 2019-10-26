@@ -62,6 +62,32 @@ class Db:
         else:
             return 0
 
+    def get_questions(self, timu_type: str, timu_num: int):
+        """根据题目类型和数量随机抽取
+
+        Arguments:
+            timu_type {str} -- 题目类型
+            timu_num {int} -- 题目数量
+        """
+        conn, cursor = self.connect()
+        sql = 'select * from %s ' % timu_type + 'order by rand() limit %s'
+        cursor.execute(sql, timu_num)
+        if timu_type == 'danxuan':
+            danxuan = cursor.fetchall()
+            conn.close()
+            for i in range(0, len(danxuan)):
+                danxuan[i]['options'] = danxuan[i]['options'].split(' ')
+            return danxuan
+        if timu_type == 'duoxuan':
+            duoxuan = cursor.fetchall()
+            conn.close()
+            for i in range(0, len(duoxuan)):
+                duoxuan[i]['options'] = duoxuan[i]['options'].split(' ')
+            return duoxuan
+        result = cursor.fetchall()
+        conn.close()
+        return result
+
     def random_questions(self):
         """随机抽取指定数量考题
         """
@@ -69,29 +95,10 @@ class Db:
         num_danxuan = 25
         num_duoxuan = 5
         num_panduan = 5
-        conn, cursor = self.connect()
-        # 填空题
-        sql = 'select * from tiankong order by rand() limit %s'
-        cursor.execute(sql, num_tiankong)
-        tiankong = cursor.fetchall()
-        # 单选题
-        sql = 'select * from danxuan order by rand() limit %s'
-        cursor.execute(sql, num_danxuan)
-        danxuan = cursor.fetchall()
-        # 拆分单选选项
-        for i in range(0, len(danxuan)):
-            danxuan[i]['options'] = danxuan[i]['options'].split(' ')
-        # 多选题
-        sql = 'select * from duoxuan order by rand() limit %s'
-        cursor.execute(sql, num_duoxuan)
-        duoxuan = cursor.fetchall()
-        for i in range(0, len(duoxuan)):
-            duoxuan[i]['options'] = duoxuan[i]['options'].split(' ')
-        # 判断题
-        sql = 'select * from panduan order by rand() limit %s'
-        cursor.execute(sql, num_panduan)
-        panduan = cursor.fetchall()
-        conn.close()
+        tiankong = self.get_questions('tiankong', num_tiankong)
+        danxuan = self.get_questions('danxuan', num_danxuan)
+        duoxuan = self.get_questions('duoxuan', num_duoxuan)
+        panduan = self.get_questions('panduan', num_panduan)
         # 整合数据
         result = {'tiankong': tiankong, 'danxuan': danxuan,
                   'duoxuan': duoxuan, 'panduan': panduan}

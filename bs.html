@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文明单位测试平台</title>
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/vendor/Font-Awesome-3.2.1/css/font-awesome.min.css">
+    <link href="/static/css/lian.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray h-100">
+    <div class="container h-100">
+        <div class="setting_box">
+            <div class="card">
+                <div class="card-header">
+                    抽题设置
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="timu_type" id="tiankong"
+                                    value="tiankong">
+                                <label class="custom-control-label" for="tiankong">填空</label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="timu_type" id="danxuan"
+                                    value="danxuan">
+                                <label class="custom-control-label" for="danxuan">单选</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="timu_type" id="duoxuan"
+                                    value="duoxuan">
+                                <label class="custom-control-label" for="duoxuan">多选</label>
+                            </div>
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="timu_type" id="panduan"
+                                    value="panduan">
+                                <label class="custom-control-label" for="panduan">判断</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group form-inline">
+                                <select class="form-control" id="timu_num" name="timu_num">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>30</option>
+                                    <option>40</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-block">开始!</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+<script src="/static/js/vue.min.js"></script>
+<script src="/static/vendor/jquery/jquery.min.js"></script>
+<script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/static/js/sb-admin-2.min.js"></script>
+<script src="/static/js/echarts.min.js"></script>
+
+</html>
