@@ -172,6 +172,9 @@
 
 <!-- 功能函数 -->
 <script>
+    // 保存错题数组
+    var wrongDom = [];
+
     // 倒计时
     function startTimer() {
         $('#notifier').text('剩余时间: 20 : 00');
@@ -193,17 +196,33 @@
     }
     var timer = startTimer();
 
-    //错误答案标红
-    function setWrong(id) {
+    //错误答案标红+显示正确答案
+    function setWrong(id, correct_answer) {
         type_timu = id.split('-')[1];
         if (type_timu == 'tiankong') {
-            $('input[name="' + id + '"]').addClass('wrong_textbox');
+            var dom = $('input[name="' + id + '"]');
+            dom.addClass('wrong_textbox');
         } else if (type_timu == 'panduan') {
-            $('input[name="' + id + '"]').parent().parent().parent().addClass('wrong_checkbox')
+            var dom = $('input[name="' + id + '"]').parent().parent().parent();
+            dom.addClass('wrong_checkbox')
         } else {
-            $('input[name="' + id + '"]').parent().parent().addClass('wrong_checkbox')
+            var dom = $('input[name="' + id + '"]').parent().parent();
+            dom.addClass('wrong_checkbox')
         }
+        showPop(dom, correct_answer);
+        wrongDom.push(dom); //存入错题数组
     }
+
+    //生成popover
+    function showPop(dom, content) {
+        dom.popover({
+            trigger: 'hover',
+            content: content,
+            placement: 'right'
+        })
+            .popover('show');
+    }
+
 
     // 计算成绩
     function getScore() {
@@ -221,7 +240,7 @@
                 // 显示错误题
                 $.each(data.detail, function (k, v) {
                     if (v.result == false) {
-                        setWrong(v.id);
+                        setWrong(v.id, v.correct_answer);
                     }
                 })
                 //记录
@@ -234,12 +253,22 @@
         $('#restartBtn').removeClass('d-none');
     }
 
-    // 再来一次
-    function restart() {
+    // 重置错题样式和popover
+    function resetWrong() {
         $('#restartBtn').addClass('d-none');
         $('.submit').prop('disabled', false);
         $('input').removeClass('wrong_textbox');
         $('td').removeClass('wrong_checkbox');
+        $('input').prop('checked', false);  // 清除复选框
+        $.each(wrongDom, function (k, v) {
+            v.popover('dispose');
+        })
+        wrongDom = [];
+    }
+
+    // 再来一次
+    function restart() {
+        resetWrong();
         $.ajax({
             type: 'GET',
             url: '/get',

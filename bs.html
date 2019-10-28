@@ -13,58 +13,10 @@
 
 <body class="bg-gray h-100">
     <div class="container h-100">
-        <div class="setting_box">
-            <div class="card">
-                <div class="card-header">
-                    抽题设置
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="timu_type" id="tiankong"
-                                    value="tiankong">
-                                <label class="custom-control-label" for="tiankong">填空</label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="timu_type" id="danxuan"
-                                    value="danxuan">
-                                <label class="custom-control-label" for="danxuan">单选</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="timu_type" id="duoxuan"
-                                    value="duoxuan">
-                                <label class="custom-control-label" for="duoxuan">多选</label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="timu_type" id="panduan"
-                                    value="panduan">
-                                <label class="custom-control-label" for="panduan">判断</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="form-group form-inline">
-                                <select class="form-control" id="timu_num" name="timu_num">
-                                    <option>10</option>
-                                    <option>20</option>
-                                    <option>30</option>
-                                    <option>40</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-success btn-block">开始!</button>
-                        </div>
-                    </div>
 
-                </div>
-            </div>
-        </div>
-
+        <input id='my' type="text">
+        <button class="btn btn-lg btn-success" onclick="doThis()">显示popover</button>
+        <button class="btn btn-lg btn-success" onclick="removeThis()">销毁popover</button>
     </div>
 </body>
 <script src="/static/js/vue.min.js"></script>
@@ -73,5 +25,23 @@
 <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
 <script src="/static/js/sb-admin-2.min.js"></script>
 <script src="/static/js/echarts.min.js"></script>
+<script>
+    function doThis() {
+        $("#my").popover({
+            trigger: 'hover',
+            title: 'Title',
+            content: 'This is content',
+            placement: 'bottom'
+        })
+            .popover('show');
+    }
+
+    function removeThis() {
+
+        $('#my').popover('dispose');
+
+    }
+</script>
+
 
 </html>
