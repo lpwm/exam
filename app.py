@@ -191,6 +191,25 @@ def ztlx():
     return jsonify({'timu': result})
 
 
+@app.route('/quick', methods=['GET', 'POST'])
+def quick():
+    """快速查题
+    """
+    if request.method == 'GET':
+        return render_template('quick.html')
+    if request.method == 'POST':
+        if request.is_json:
+            # 处理json格式的数据请求
+            data = request.json
+            keyword = data['keyword']
+        else:
+            data = request.values
+            keyword = data.get('keyword')
+
+        result = dbo.quick(keyword)
+        return jsonify(result)
+
+
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     """测试用函数

@@ -205,3 +205,16 @@ class Db:
                 'best_people': best_people},
             'chart_data': chart_data
         }
+
+    def quick(self, keyword):
+        """快速查询
+        """
+        if keyword:
+            conn, cursor = self.connect()
+            sql = 'select * from ziliao where title like "%' + keyword + '%"'
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        else:
+            return None
