@@ -206,6 +206,19 @@ class Db:
             'chart_data': chart_data
         }
 
+    def user_test_info(self):
+        """查询用户测试次数和平均成绩
+        """
+        conn, cursor = self.connect()
+        sql = ('select users.username,c.times,a.avg from users LEFT JOIN '
+               '(select username,count(score) as times from logs where score>0 GROUP BY username) as c '
+               'on users.username=c.username left join (select username, avg(score) as avg from logs GROUP BY username)as a'
+               ' on users.username=a.username order by c.times desc')
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        conn.close()
+        return result
+
     def quick(self, keyword):
         """快速查询
         """

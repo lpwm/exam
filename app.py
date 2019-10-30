@@ -3,7 +3,8 @@
 Returns:
     [type] -- [description]
 """
-from flask import Flask, request, session, redirect, url_for, jsonify, render_template
+
+from flask import Flask, request, session, redirect, url_for, json, jsonify, render_template
 from flask_cors import CORS
 from db import Db
 from Tiku import Tiku
@@ -143,6 +144,14 @@ def admin():
         return render_template('/admin/detail.html')
     if data['type'] == 'db_manage':
         return render_template('/admin/db_manage.html')
+
+
+@app.route('/info', methods=['GET'])
+def info():
+    """查询考生历史测试情况
+    """
+    data = dbo.user_test_info()
+    return jsonify(data)
 
 
 @app.route('/op', methods=['POST'])
